@@ -15,16 +15,16 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v3
       with:
-        go-version: 1.17
-    - name: setup ko
+        go-version: 1.18
+    - name: Setup ko
       run: go install github.com/google/ko@main
     - uses: sigstore/cosign-installer@main
-    - name: login
+    - name: Login to GHCR
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-    - name:
+    - name: Publish image and SBOM
       run: KO_DOCKER_REPO=ghcr.io/chipzoller/hello-ko ko publish --bare github.com/chipzoller/hello-ko --sbom=cyclonedx
-    - name:
-      run: COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }} cosign sign --key ${{ secrets.COSIGN_PRIVATE_KEY }} ghcr.io/chipzoller/hello-ko
+    - name: Sign image
+      run: COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }} cosign sign --key env://${{ secrets.COSIGN_PRIVATE_KEY }} ghcr.io/chipzoller/hello-ko
