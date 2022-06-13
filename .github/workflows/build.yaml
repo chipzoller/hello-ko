@@ -30,7 +30,7 @@ jobs:
     - name: Publish image and SBOM
       run: KO_DOCKER_REPO=ghcr.io/chipzoller/hello-ko ko publish --bare github.com/chipzoller/hello-ko --sbom=cyclonedx
     - name: Sign image
-      run: COSIGN_PASSWORD="$COSIGN_PASSWORD" cosign sign --key env://COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
+      run: cosign sign --key env://COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
       env:
         COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
