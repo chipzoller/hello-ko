@@ -7,6 +7,8 @@ jobs:
   ko-publish:
     name: Release ko artifact
     runs-on: ubuntu-latest
+    env:
+      COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
 
     # https://docs.github.com/en/actions/reference/authentication-in-a-workflow
     permissions:
@@ -15,16 +17,19 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-go@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Golang
+      uses: actions/setup-go@v3
       with:
         go-version: 1.18
     - name: Setup ko
       run: go install github.com/google/ko@main
-    - uses: sigstore/cosign-installer@main
+    - name: Install Cosign
+      uses: sigstore/cosign-installer@main
     - name: Login to GHCR
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
     - name: Publish image and SBOM
       run: KO_DOCKER_REPO=ghcr.io/chipzoller/hello-ko ko publish --bare github.com/chipzoller/hello-ko --sbom=cyclonedx
     - name: Sign image
-      run: COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }} cosign sign --key env://${{ secrets.COSIGN_PRIVATE_KEY }} ghcr.io/chipzoller/hello-ko
+      run: COSIGN_PASSWORD=${{ secrets.COSIGN_PASSWORD }} cosign sign --key env://$COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
