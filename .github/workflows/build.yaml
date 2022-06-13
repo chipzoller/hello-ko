@@ -39,7 +39,7 @@ jobs:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
   build:
     permissions:
-      # id-token: write
+      id-token: write
       contents: write
       actions: read
     needs: ko-publish
