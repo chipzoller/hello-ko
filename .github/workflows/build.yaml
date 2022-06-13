@@ -1,19 +1,14 @@
 on: [push, workflow_dispatch]
-
 name: build
-
 jobs:
-
   ko-publish:
     name: Release ko artifact
     runs-on: ubuntu-latest
-
     # https://docs.github.com/en/actions/reference/authentication-in-a-workflow
     permissions:
       id-token: write  # undocumented OIDC support.
       packages: write
       contents: read
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
