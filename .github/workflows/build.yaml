@@ -49,6 +49,7 @@ jobs:
       id-token: write
       contents: write
       actions: read
+      packages: write
     needs: build
     steps:
     - name: Download attestations
@@ -64,9 +65,15 @@ jobs:
     - name: Fetch SBOM
       run: cosign download sbom ghcr.io/chipzoller/hello-ko > sbom.json
     - name: List files
-      run: ls -lahF
-    - name: Login to GHCR
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      run: ls -lahF && cat provenance.json
+    # - name: Login to GHCR
+    #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    - name: Log in to GHCR
+      uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b # v2.0.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Attest provenance
       run: cosign attest --predicate provenance.json --type slsaprovenance --key env://COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
       env:
