@@ -55,9 +55,19 @@ jobs:
       uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741 # v3.0.0
       with:
         name: binary-linux-amd64.intoto.jsonl
-    - name: List files
-      run: ls -lahF
     - name: Strip predicate
       run: jq -r .payload binary-linux-amd64.intoto.jsonl | base64 --decode > provenance.json
+    - name: Fetch SBOM
+      run: cosign download sbom ghcr.io/chipzoller/hello-ko > sbom.json
     - name: List files
       run: ls -lahF
+    - name: Attest provenance
+      run: cosign attest --predicate provenance.json --type slsaprovenance --key env://COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
+      env:
+        COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+    - name: Attest SBOM
+      run: cosign attest --predicate sbom.json --type https://cyclonedx.org/bom --key env://COSIGN_PRIVATE_KEY ghcr.io/chipzoller/hello-ko
+      env:
+        COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
