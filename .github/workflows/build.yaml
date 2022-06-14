@@ -28,7 +28,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish image and SBOM (CycloneDX)
-      run: ko publish --bare github.com/chipzoller/hello-ko --sbom=cyclonedx
+      run: ko build ./ --sbom=cyclonedx # was: publish --bare github.com/chipzoller/hello-ko
       env:
         KO_DOCKER_REPO: ghcr.io/chipzoller/hello-ko
     - name: Sign image
